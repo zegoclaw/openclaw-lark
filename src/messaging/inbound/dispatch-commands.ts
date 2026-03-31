@@ -91,31 +91,24 @@ export async function dispatchPermissionNotification(
 /**
  * Dispatch a system command (/help, /reset, etc.) via plain-text delivery.
  * No streaming card, no "Processing..." state.
- *
- * When `suppressReply` is true the agent still runs (e.g. reads workspace
- * files) but its text output is not forwarded to Feishu.  This is used for
- * bare /new and /reset commands: the SDK already sends a "done" notice
- * via its own route, so the AI greeting would be redundant.
  */
 export async function dispatchSystemCommand(
   dc: DispatchContext,
   ctxPayload: ReturnType<typeof LarkClient.runtime.channel.reply.finalizeInboundContext>,
-  suppressReply = false,
   replyToMessageId?: string,
 ): Promise<void> {
   let delivered = false;
 
   dc.log(
-    `feishu[${dc.account.accountId}]: detected system command, using plain-text dispatch${suppressReply ? ' (reply suppressed)' : ''}`,
+    `feishu[${dc.account.accountId}]: detected system command, using plain-text dispatch`,
   );
-  log.info(`system command detected, plain-text dispatch${suppressReply ? ', reply suppressed' : ''}`);
+  log.info('system command detected, plain-text dispatch');
 
   await dc.core.channel.reply.dispatchReplyWithBufferedBlockDispatcher({
     ctx: ctxPayload,
     cfg: dc.accountScopedCfg,
     dispatcherOptions: {
       deliver: async (payload) => {
-        if (suppressReply) return;
         const text = payload.text?.trim() ?? '';
         if (!text) return;
         await sendMessageFeishu({

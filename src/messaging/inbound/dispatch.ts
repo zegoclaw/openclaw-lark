@@ -78,7 +78,7 @@ async function dispatchNormalMessage(
   if (isLikelyAbortText(dc.ctx.content?.trim() ?? '')) {
     dc.log(`feishu[${dc.account.accountId}]: abort message detected, using plain-text dispatch`);
     log.info('abort message detected, using plain-text dispatch');
-    await dispatchSystemCommand(dc, ctxPayload, false, replyToMessageId);
+    await dispatchSystemCommand(dc, ctxPayload, replyToMessageId);
     return;
   }
 
@@ -351,7 +351,7 @@ export async function dispatchToAgent(params: {
   const skillFilter = dc.isGroup ? (params.groupConfig?.skills ?? params.defaultGroupConfig?.skills) : undefined;
 
   if (isCommand) {
-    await dispatchSystemCommand(dc, ctxPayload, false, params.replyToMessageId);
+    await dispatchSystemCommand(dc, ctxPayload, params.replyToMessageId);
     // /new and /reset explicitly start a new session — clear pending history
     if (isBareNewOrReset && dc.isGroup && historyKey && params.chatHistories) {
       clearHistoryEntriesIfEnabled({
