@@ -85,8 +85,6 @@ async function dispatchNormalMessage(
   }
 
   const effectiveSessionKey = dc.threadSessionKey ?? dc.route.sessionKey;
-  startToolUseTraceRun(effectiveSessionKey);
-
   const toolUseDisplay = resolveToolUseDisplayConfig({
     cfg: dc.accountScopedCfg,
     feishuCfg: dc.account.config,
