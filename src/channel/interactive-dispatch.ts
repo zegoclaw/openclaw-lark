@@ -100,7 +100,7 @@ export async function dispatchFeishuPluginInteractiveHandler(params: {
   const ctx: any = {
     channel: 'slack',
     accountId: params.accountId,
-    conversationId: basics.openChatId || "",
+    conversationId: basics.openChatId || '',
     senderId: basics.senderOpenId,
     auth: {
       isAuthorizedSender: true,
@@ -119,79 +119,79 @@ export async function dispatchFeishuPluginInteractiveHandler(params: {
   };
 
   const respond = {
-      acknowledge: async () => {},
-      reply: async (args: { text: string }) => {
-        if (!basics.openChatId || !String(args?.text || '').trim()) return;
-        await sendMessageFeishu({
-          cfg: params.cfg,
-          to: basics.openChatId,
-          text: String(args?.text || ''),
-          replyToMessageId: basics.openMessageId,
-          accountId: params.accountId,
-          replyInThread: false,
-        });
-      },
-      followUp: async (args: { text: string }) => {
-        if (!basics.openChatId || !String(args?.text || '').trim()) return;
-        await sendMessageFeishu({
-          cfg: params.cfg,
-          to: basics.openChatId,
-          text: String(args?.text || ''),
-          replyToMessageId: basics.openMessageId,
-          accountId: params.accountId,
-          replyInThread: false,
-        });
-      },
-      editMessage: async (args: { text?: string; blocks?: unknown[] }) => {
-        if (!basics.openMessageId) {
-          if (Array.isArray(args?.blocks) && args.blocks.length && basics.openChatId) {
-            await sendCardFeishu({
-              cfg: params.cfg,
-              to: basics.openChatId,
-              card: { schema: '2.0', body: { elements: args.blocks as Record<string, unknown>[] } },
-              replyToMessageId: basics.openMessageId,
-              accountId: params.accountId,
-              replyInThread: false,
-            });
-            return;
-          }
-          if (typeof args?.text === 'string' && args.text.trim() && basics.openChatId) {
-            await sendMessageFeishu({
-              cfg: params.cfg,
-              to: basics.openChatId,
-              text: args.text,
-              replyToMessageId: basics.openMessageId,
-              accountId: params.accountId,
-              replyInThread: false,
-            });
-          }
-          return;
-        }
-        if (Array.isArray(args?.blocks) && args.blocks.length) {
-          await updateCardFeishu({
+    acknowledge: async () => {},
+    reply: async (args: { text: string }) => {
+      if (!basics.openChatId || !String(args?.text || '').trim()) return;
+      await sendMessageFeishu({
+        cfg: params.cfg,
+        to: basics.openChatId,
+        text: String(args?.text || ''),
+        replyToMessageId: basics.openMessageId,
+        accountId: params.accountId,
+        replyInThread: false,
+      });
+    },
+    followUp: async (args: { text: string }) => {
+      if (!basics.openChatId || !String(args?.text || '').trim()) return;
+      await sendMessageFeishu({
+        cfg: params.cfg,
+        to: basics.openChatId,
+        text: String(args?.text || ''),
+        replyToMessageId: basics.openMessageId,
+        accountId: params.accountId,
+        replyInThread: false,
+      });
+    },
+    editMessage: async (args: { text?: string; blocks?: unknown[] }) => {
+      if (!basics.openMessageId) {
+        if (Array.isArray(args?.blocks) && args.blocks.length && basics.openChatId) {
+          await sendCardFeishu({
             cfg: params.cfg,
-            messageId: basics.openMessageId,
+            to: basics.openChatId,
             card: { schema: '2.0', body: { elements: args.blocks as Record<string, unknown>[] } },
+            replyToMessageId: basics.openMessageId,
             accountId: params.accountId,
+            replyInThread: false,
           });
           return;
         }
-        if (typeof args?.text === 'string' && args.text.trim()) {
-          await updateCardFeishu({
+        if (typeof args?.text === 'string' && args.text.trim() && basics.openChatId) {
+          await sendMessageFeishu({
             cfg: params.cfg,
-            messageId: basics.openMessageId,
-            card: buildMarkdownCard(args.text),
+            to: basics.openChatId,
+            text: args.text,
+            replyToMessageId: basics.openMessageId,
             accountId: params.accountId,
+            replyInThread: false,
           });
-          return;
         }
+        return;
+      }
+      if (Array.isArray(args?.blocks) && args.blocks.length) {
         await updateCardFeishu({
           cfg: params.cfg,
           messageId: basics.openMessageId,
-          card: { schema: '2.0', body: { elements: [] } },
+          card: { schema: '2.0', body: { elements: args.blocks as Record<string, unknown>[] } },
           accountId: params.accountId,
         });
-      },
+        return;
+      }
+      if (typeof args?.text === 'string' && args.text.trim()) {
+        await updateCardFeishu({
+          cfg: params.cfg,
+          messageId: basics.openMessageId,
+          card: buildMarkdownCard(args.text),
+          accountId: params.accountId,
+        });
+        return;
+      }
+      await updateCardFeishu({
+        cfg: params.cfg,
+        messageId: basics.openMessageId,
+        card: { schema: '2.0', body: { elements: [] } },
+        accountId: params.accountId,
+      });
+    },
   };
 
   try {
